@@ -14,6 +14,7 @@ char keyword[32][10]={"auto","break","case","char","const","continue","default",
 char formatspecifier[8][3] = {"%d", "%f", "%s", "%c", "%ld", "%x", "%o", "%i"};
 char operator[16] = "+-*/(){}<>&=[],;";
 
+
 int main(int argc, char *argv[])
 {
 	int i = 0, ch, dist, flag;
@@ -28,6 +29,7 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
+  printf("----Lexical Analyser----\n");
 	fp = fopen(argv[1], "r");
 	fp1 = fopen(argv[1], "r");
 	fd = fopen("new.html", "w");
@@ -157,7 +159,8 @@ int main(int argc, char *argv[])
 						word[k] = '\0';
 					}
 				}
-			}
+      }
+			free(buffer);
 			fseek(fp1,1,SEEK_CUR);
 			fseek(fp, dist + 1, SEEK_CUR);
 		}
@@ -165,6 +168,9 @@ int main(int argc, char *argv[])
 	fprintf(fd, "</pre>\n");
 	fprintf(fd, "</body>\n");
 	fprintf(fd, "</html>\n");
+  fclose(fd);
+  fclose(fp1);
+  fclose(fp);
 }
 
 void preprocessor(char *buffer, int size, FILE *fd)
