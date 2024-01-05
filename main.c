@@ -2,9 +2,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
 void preprocessor(char *buffer, int size, FILE *fd);
 int keywordcheck(char*buffer);
 char operatorcheck(char*buffer);
+int read_and_validate(int argc, char **argv, int *numberflag);
 
 char keyword[32][10]={"auto","break","case","char","const","continue","default",
                                                 "do","double","else","enum","extern","float","for","goto",
@@ -14,20 +16,18 @@ char keyword[32][10]={"auto","break","case","char","const","continue","default",
 char formatspecifier[8][3] = {"%d", "%f", "%s", "%c", "%ld", "%x", "%o", "%i"};
 char operator[16] = "+-*/(){}<>&=[],;";
 
-
 int main(int argc, char *argv[])
 {
+  int numberflag=0;
+  if(read_and_validate(argc, argv, &numberflag)==0)
+      return 0;
+  else
+      printf("INFO: Read_and_validate Success\n");
+
 	int i = 0, ch, dist, flag;
 	FILE *fp1, *fp, *fd;
-
 	char *buffer;
 	char word[25];
-
-	if (argc == 1)
-    {
-		printf("Usage: %s <.c file>\n", argv[0]);
-		return 0;
-	}
 
   printf("----Lexical Analyser----\n");
 	fp = fopen(argv[1], "r");
@@ -42,7 +42,10 @@ int main(int argc, char *argv[])
 	fprintf(fd, "</head>\n");
 	fprintf(fd, "<body style=\"background-color:black;\">\n");
 	fprintf(fd, "<pre>\n");
+  int line=1;
 
+  if(numberflag==1)
+       fprintf(fd, "<span style='color: grey'>%d: </span>", line++);
 	while((ch = fgetc(fp1)) != EOF)
 	{
 		if (ch == '\n')
@@ -57,10 +60,14 @@ int main(int argc, char *argv[])
 				fprintf(fd,"<span style='color: purple'>%s</span>",buffer);
 				preprocessor(buffer, dist, fd);
 				fprintf(fd, "\n");
+        if(numberflag==1)
+           fprintf(fd, "<span style='color: grey'>%d: </span>", line++);
 			}
 			else
 			{
 				fprintf(fd, "\n");
+        if(numberflag==1)
+           fprintf(fd, "<span style='color: grey'>%d: </span>", line++);
 				i = 0;
 				while(i < dist)
 				{
@@ -228,4 +235,25 @@ char operatorcheck(char*buffer)
 		}
 	}
 	return 0;
+}
+
+int read_and_validate(int argc, char **argv, int *flag)
+{
+
+  if(argc == 1)
+  {
+    printf("Usage: %s  <c file.c>  [option]\n", argv[0]);
+    printf("option [-n] to enable line numbers\n");
+    return 0;
+  }
+  if(argc==3)
+    if(argv[2]!=NULL)
+      if(!strcmp(argv[2], "-n"))
+         *flag=1;
+      else  
+      {
+         printf("INFO: Pass -n only for numbersline\n");
+         return  0;
+      }
+  return 1;
 }
